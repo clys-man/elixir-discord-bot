@@ -1,0 +1,10 @@
+import Config
+
+config :discord_bot,
+  token: "!",
+  openwm_api_key: ""
+
+config :nostrum,
+  token: "",
+  ffmpeg: nil,
+  gateway_intents: [:guilds, :guild_messages, :message_content]
