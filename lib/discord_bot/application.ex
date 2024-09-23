@@ -6,10 +6,11 @@ defmodule DiscordBot.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      DiscordBot
+      DiscordBot,
+      {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher}
     ]
 
-    opts = [strategy: :one_for_one, name: DiscordBot.Supervisor]
-    Supervisor.start_link(children, opts)
+    options = [strategy: :rest_for_one, name: DiscordBot.Supervisor]
+    Supervisor.start_link(children, options)
   end
 end

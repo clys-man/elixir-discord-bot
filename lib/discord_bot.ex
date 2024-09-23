@@ -2,54 +2,29 @@ defmodule DiscordBot do
   use Nostrum.Consumer
 
   import Nostrum.Struct.Embed
-  alias Nostrum.Struct.Interaction
   alias Nostrum.Cache.UserCache
   alias Nostrum.Struct.User
-  alias Nostrum.Api
   alias Nostrum.Struct.Guild.Member
 
-  def handle_event({:READY, _event, _ws_state}) do
+  def handle_event({:READY, _data, _ws_state}) do
+    guild_id = Application.fetch_env!(:discord_bot, :main_guild_id)
+
     commands = [
-      %{
-        name: "ping",
-        description: "Teste de latência"
-      },
-      %{
-        name: "clima",
-        description: "Saiba como está o clima na cidade",
-        options: [
-          %{
-            type: 3,
-            name: "cidade",
-            description: "cidade para verificar o clima",
-            required: true
-          }
-        ]
-      },
-      %{
-        name: "pokemon",
-        description: "Informações sobre um Pokémon",
-        options: [
-          %{
-            type: 3,
-            name: "nome",
-            description: "Nome do Pokémon",
-            required: true
-          }
-        ]
-      }
+      {"ping", DiscordBot.Commands.Ping},
+      {"pokemon", DiscordBot.Commands.Pokemon},
+      {"clima", DiscordBot.Commands.Clima}
     ]
 
-    Enum.each(
-      commands,
-      &Nostrum.Api.create_guild_application_command(1_230_493_944_912_154_664, &1)
-    )
+    for {name, module} <- commands do
+      case Nosedrum.Interactor.Dispatcher.add_command(name, module, guild_id) do
+        {:ok, _} -> IO.puts("Registered #{name} command.")
+        e -> IO.inspect(e, label: "An error occurred registering the #{name} command")
+      end
+    end
   end
 
-  def handle_event(
-        {:INTERACTION_CREATE, %Interaction{data: %{name: name}} = interaction, _ws_state}
-      ) do
-    handle_command(name, interaction)
+  def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
   end
 
   def handle_event({:GUILD_MEMBER_ADD, {_, %Member{} = member}, _ws_state}) do
@@ -71,113 +46,5 @@ defmodule DiscordBot do
       |> put_thumbnail(User.avatar_url(user))
 
     Nostrum.Api.create_message(welcome_channel_id, embeds: [embed])
-  end
-
-  defp handle_command(command, %Interaction{} = interaction) do
-    options = interaction.data.options
-
-    case command do
-      "clima" ->
-        city = Enum.at(options, 0).value
-        weather = get_weather_result(city)
-
-        response = %{
-          type: 4,
-          data: %{
-            content: weather
-          }
-        }
-
-        Api.create_interaction_response(interaction, response)
-
-      "ping" ->
-        response = %{
-          type: 4,
-          data: %{
-            content: "Pong!"
-          }
-        }
-
-        Api.create_interaction_response(interaction, response)
-
-      "pokemon" ->
-        pokemon = Enum.at(options, 0).value
-        pokemon_info = get_pokemon_result(pokemon)
-
-        case pokemon_info do
-          {:ok, body} ->
-            pokemon = Jason.decode!(body)
-            id = pokemon["id"]
-            name = pokemon["name"]
-            types = pokemon["types"] |> Enum.map(& &1["type"]["name"]) |> Enum.join(", ")
-            image = pokemon["sprites"]["front_default"]
-            primary_type = pokemon["types"] |> Enum.at(0) |> Map.get("type") |> Map.get("name")
-            color = PokemonColors.get_color(primary_type)
-            link = "https://pokemondb.net/pokedex/#{name}"
-
-            response = %{
-              type: 4,
-              data: %{
-                embeds: [
-                  %{
-                    title: name,
-                    description: "ID: #{id}\nTipo(s): #{types}",
-                    image: %{url: image},
-                    url: link,
-                    color: color
-                  }
-                ]
-              }
-            }
-
-            Api.create_interaction_response(interaction, response)
-
-          {:error} ->
-            response = %{
-              type: 4,
-              data: %{
-                content: "Pokemon não encontrado"
-              }
-            }
-
-            Api.create_interaction_response(interaction, response)
-        end
-
-      _ ->
-        "Comando desconhecido"
-    end
-  end
-
-  defp get_weather_result(city) do
-    api_key = Application.fetch_env!(:discord_bot, :openwm_api_key)
-    q = URI.encode(city)
-
-    url =
-      "https://api.openweathermap.org/data/2.5/weather?q=#{q}&appid=#{api_key}&units=metric"
-
-    case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        weather = Jason.decode!(body)
-        temp = weather["main"]["temp"]
-
-        "Temperatura em #{city}: #{temp}°C"
-
-      _ ->
-        "Cidade não encontrada"
-    end
-  end
-
-  defp get_pokemon_result(pokemon) do
-    q = URI.encode(pokemon)
-
-    url = "https://pokeapi.co/api/v2/pokemon/#{q}"
-
-    case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        {:ok, body}
-
-      _ ->
-        {:error}
-    end
   end
 end

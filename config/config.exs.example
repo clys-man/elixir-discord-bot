@@ -1,10 +1,12 @@
 import Config
 
 config :discord_bot,
-  token: "!",
-  openwm_api_key: ""
+  openwm_api_key: "",
+  embed_color: 0x3498DB,
+  welcome_channel_id: 1,
+  main_guild_id: 1
 
 config :nostrum,
   token: "",
-  ffmpeg: nil,
+  ffmpeg: "ffmpeg",
   gateway_intents: :all
