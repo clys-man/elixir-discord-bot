@@ -1,0 +1,23 @@
+FROM elixir:1.17.2
+
+WORKDIR /app
+
+RUN apt-get -y update && apt-get install -y \
+    ffmpeg \
+    python3-pip &&\
+    pip install --break-system-packages --upgrade streamlink youtube_dl &&\
+    ln -s /usr/bin/python3 /usr/bin/python &&\
+    curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/bin/youtube-dl &&\
+    chmod a+rx /usr/bin/youtube-dl
+
+COPY mix.exs mix.lock ./
+
+RUN mix local.hex --force &&\
+    mix local.rebar --force &&\
+    mix deps.get
+
+COPY ./ ./
+
+RUN mix compile
+
+CMD ["iex", "-S", "mix"]

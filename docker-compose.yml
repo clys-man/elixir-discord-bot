@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    image: elixir-bot
+    container_name: elixir-bot
+    restart: unless-stopped
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app
+    networks:
+      - bot
+
+networks:
+  bot:
+    driver: bridge
