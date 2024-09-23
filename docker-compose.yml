@@ -11,9 +11,3 @@ services:
     tty: true
     volumes:
       - ./:/app
-    networks:
-      - bot
-
-networks:
-  bot:
-    driver: bridge
