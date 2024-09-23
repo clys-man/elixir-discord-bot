@@ -6,21 +6,14 @@ defmodule DiscordBot do
   alias Nostrum.Struct.User
   alias Nostrum.Struct.Guild.Member
 
+  @commands %{
+    "ping" => DiscordBot.Commands.Ping,
+    "pokemon" => DiscordBot.Commands.Pokemon,
+    "clima" => DiscordBot.Commands.Clima
+  }
+
   def handle_event({:READY, _data, _ws_state}) do
-    guild_id = Application.fetch_env!(:discord_bot, :main_guild_id)
-
-    commands = [
-      {"ping", DiscordBot.Commands.Ping},
-      {"pokemon", DiscordBot.Commands.Pokemon},
-      {"clima", DiscordBot.Commands.Clima}
-    ]
-
-    for {name, module} <- commands do
-      case Nosedrum.Interactor.Dispatcher.add_command(name, module, guild_id) do
-        {:ok, _} -> IO.puts("Registered #{name} command.")
-        e -> IO.inspect(e, label: "An error occurred registering the #{name} command")
-      end
-    end
+    load_commands()
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
@@ -46,5 +39,19 @@ defmodule DiscordBot do
       |> put_thumbnail(User.avatar_url(user))
 
     Nostrum.Api.create_message(welcome_channel_id, embeds: [embed])
+  end
+
+  defp load_commands do
+    @commands
+    |> Enum.each(&load_command/1)
+  end
+
+  defp load_command({name, module}) do
+    guild_id = Application.fetch_env!(:discord_bot, :main_guild_id)
+
+    case Nosedrum.Interactor.Dispatcher.add_command(name, module, guild_id) do
+      {:ok, _} -> IO.puts("Registered #{name} command.")
+      e -> IO.inspect(e, label: "An error occurred registering the #{name} command")
+    end
   end
 end
