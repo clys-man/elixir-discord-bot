@@ -20,10 +20,12 @@ defmodule DiscordBot.MixProject do
 
   defp deps do
     [
-      {:nostrum, "~> 0.10"},
+      # Discord 
+      {:nostrum, github: "Kraigie/nostrum", override: true},
+      {:nosedrum, github: "jchristgit/nosedrum", override: true},
+      # HTTP
       {:httpoison, "~> 2.0"},
-      {:jason, "~> 1.4"},
-      {:nosedrum, "~> 0.5"}
+      {:jason, "~> 1.4"}
     ]
   end
 end

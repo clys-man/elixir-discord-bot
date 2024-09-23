@@ -7,7 +7,7 @@ defmodule DiscordBot.Application do
   def start(_type, _args) do
     children = [
       DiscordBot,
-      {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher}
+      {Nosedrum.Storage.Dispatcher, name: Nosedrum.Storage.Dispatcher}
     ]
 
     options = [strategy: :rest_for_one, name: DiscordBot.Supervisor]

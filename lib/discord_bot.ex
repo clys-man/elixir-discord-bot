@@ -17,7 +17,7 @@ defmodule DiscordBot do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+    Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
   end
 
   def handle_event({:GUILD_MEMBER_ADD, {_, %Member{} = member}, _ws_state}) do
@@ -49,7 +49,7 @@ defmodule DiscordBot do
   defp load_command({name, module}) do
     guild_id = Application.fetch_env!(:discord_bot, :main_guild_id)
 
-    case Nosedrum.Interactor.Dispatcher.add_command(name, module, guild_id) do
+    case Nosedrum.Storage.Dispatcher.add_command(name, module, guild_id) do
       {:ok, _} -> IO.puts("Registered #{name} command.")
       e -> IO.inspect(e, label: "An error occurred registering the #{name} command")
     end
