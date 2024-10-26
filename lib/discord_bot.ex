@@ -9,7 +9,8 @@ defmodule DiscordBot do
   @commands %{
     "ping" => DiscordBot.Commands.Ping,
     "pokemon" => DiscordBot.Commands.Pokemon,
-    "clima" => DiscordBot.Commands.Clima
+    "movies" => DiscordBot.Commands.Movies,
+    "ask" => DiscordBot.Commands.Ask
   }
 
   def handle_event({:READY, _data, _ws_state}) do

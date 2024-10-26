@@ -27,3 +27,5 @@ discord_bot-*.tar
 
 # Local config file
 /config/config.exs
+
+/ollama
