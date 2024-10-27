@@ -1,6 +1,8 @@
 defmodule DiscordBot.Commands.Pokemon do
   @behaviour Nosedrum.ApplicationCommand
 
+  def name(), do: "pokemon"
+
   @impl true
   def description() do
     "Informações sobre um Pokémon"

@@ -1,6 +1,8 @@
 defmodule DiscordBot.Commands.Movies do
   @behaviour Nosedrum.ApplicationCommand
 
+  def name(), do: "movies"
+
   @impl true
   def description(), do: "Search for the top 20 movies based on the given category"
 

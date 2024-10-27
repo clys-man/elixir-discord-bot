@@ -1,6 +1,8 @@
 defmodule DiscordBot.Commands.Clima do
   @behaviour Nosedrum.ApplicationCommand
 
+  def name(), do: "clima"
+
   @impl true
   def description() do
     "Saiba como está o clima de uma cidade"

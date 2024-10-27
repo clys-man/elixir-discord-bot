@@ -1,6 +1,8 @@
 defmodule DiscordBot.Commands.Ask do
   @behaviour Nosedrum.ApplicationCommand
 
+  def name(), do: "ask"
+
   @impl true
   def description(), do: "Ask the AI a question"
 

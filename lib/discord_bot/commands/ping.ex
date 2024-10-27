@@ -1,6 +1,8 @@
 defmodule DiscordBot.Commands.Ping do
   @behaviour Nosedrum.ApplicationCommand
 
+  def name(), do: "ping"
+
   @impl true
   def description() do
     "Ping"

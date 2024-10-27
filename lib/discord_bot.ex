@@ -2,24 +2,17 @@ defmodule DiscordBot do
   use Nostrum.Consumer
 
   import Nostrum.Struct.Embed
+  alias DiscordBot.ApplicationCommandLoader
   alias Nostrum.Cache.UserCache
   alias Nostrum.Struct.User
   alias Nostrum.Struct.Guild.Member
+  alias Nosedrum.Storage.Dispatcher
 
-  @commands %{
-    "ping" => DiscordBot.Commands.Ping,
-    "pokemon" => DiscordBot.Commands.Pokemon,
-    "movies" => DiscordBot.Commands.Movies,
-    "ask" => DiscordBot.Commands.Ask
-  }
+  def handle_event({:READY, _, _}),
+    do:
+      Application.fetch_env!(:discord_bot, :main_guild_id) |> ApplicationCommandLoader.load_all()
 
-  def handle_event({:READY, _data, _ws_state}) do
-    load_commands()
-  end
-
-  def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-    Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
-  end
+  def handle_event({:INTERACTION_CREATE, intr, _}), do: Dispatcher.handle_interaction(intr)
 
   def handle_event({:GUILD_MEMBER_ADD, {_, %Member{} = member}, _ws_state}) do
     embed_color = Application.fetch_env!(:discord_bot, :embed_color)
@@ -42,17 +35,5 @@ defmodule DiscordBot do
     Nostrum.Api.create_message(welcome_channel_id, embeds: [embed])
   end
 
-  defp load_commands do
-    @commands
-    |> Enum.each(&load_command/1)
-  end
-
-  defp load_command({name, module}) do
-    guild_id = Application.fetch_env!(:discord_bot, :main_guild_id)
-
-    case Nosedrum.Storage.Dispatcher.add_command(name, module, guild_id) do
-      {:ok, _} -> IO.puts("Registered #{name} command.")
-      e -> IO.inspect(e, label: "An error occurred registering the #{name} command")
-    end
-  end
+  def handle_event(_), do: :noop
 end
