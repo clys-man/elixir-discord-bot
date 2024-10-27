@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cd /app
+
+if [ "$MIX_ENV" == "dev" ]; then
+    iex -S mix
+else
+    mix run --no-halt
+fi
