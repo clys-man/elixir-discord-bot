@@ -31,7 +31,10 @@ services:
       - OLLAMA_HOST=0.0.0.0
     networks:
       - discord-bot
-
+    deploy:
+      resources:
+        reservations:
+          memory: "4g"
 networks:
   discord-bot:
     external: false

@@ -4,6 +4,8 @@ config :discord_bot,
   ollama_url: "http://ollama:11434/api",
   ollama_model: "llama3.2:1b",
   openwm_api_key: "",
+  tmdb_api_key: "",
+  dalle3_token: "",
   embed_color: 0x3498DB,
   welcome_channel_id: 1,
   main_guild_id: 1
@@ -11,4 +13,5 @@ config :discord_bot,
 config :nostrum,
   token: "",
   ffmpeg: "ffmpeg",
-  gateway_intents: :all
+  gateway_intents: :all,
+  youtubedl: "yt-dlp"
